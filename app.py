@@ -4,18 +4,21 @@ import random
 
 app = Flask(__name__)
 app.secret_key = "fitness_secret_key"
+
+# Required for Render (HTTPS)
 app.config.update(
     SESSION_COOKIE_SAMESITE="Lax",
     SESSION_COOKIE_SECURE=True
 )
+
 # ---------------- DATABASE ----------------
 def get_db():
     conn = sqlite3.connect(
         "fitness.db",
-        timeout=10,                 # wait if locked
-        check_same_thread=False     # required for gunicorn
+        timeout=10,
+        check_same_thread=False
     )
-    conn.execute("PRAGMA journal_mode=WAL;")  # allow concurrent access
+    conn.execute("PRAGMA journal_mode=WAL;")
     return conn
 
 
@@ -54,7 +57,7 @@ def login():
         db = get_db()
         try:
             cur = db.execute(
-                "SELECT * FROM users WHERE username=? AND password=?",
+                "SELECT id FROM users WHERE username=? AND password=?",
                 (request.form["username"], request.form["password"])
             )
             user = cur.fetchone()
@@ -73,12 +76,16 @@ def register():
     if request.method == "POST":
         db = get_db()
         try:
-            db.execute(
+            cur = db.execute(
                 "INSERT INTO users (username, password) VALUES (?, ?)",
                 (request.form["username"], request.form["password"])
             )
             db.commit()
+
+            # Auto-login after register
+            session["user_id"] = cur.lastrowid
             return redirect("/profile")
+
         except sqlite3.IntegrityError:
             return "Username already exists"
         finally:
@@ -160,7 +167,6 @@ def quotes():
         "Don’t stop when you’re tired. Stop when you’re done. 🔥",
         "Push yourself because no one else is going to do it for you.",
         "Success starts with self-discipline.",
-        "The pain you feel today will be the strength you feel tomorrow.",
         "Consistency beats motivation.",
         "A fit body, a calm mind, a fulfilled soul.",
         "Every step forward counts."
