@@ -4,7 +4,10 @@ import random
 
 app = Flask(__name__)
 app.secret_key = "fitness_secret_key"
-
+app.config.update(
+    SESSION_COOKIE_SAMESITE="Lax",
+    SESSION_COOKIE_SECURE=True
+)
 # ---------------- DATABASE ----------------
 def get_db():
     conn = sqlite3.connect(
@@ -75,7 +78,7 @@ def register():
                 (request.form["username"], request.form["password"])
             )
             db.commit()
-            return redirect("/")
+            return redirect("/profile")
         except sqlite3.IntegrityError:
             return "Username already exists"
         finally:
