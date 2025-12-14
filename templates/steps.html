@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Steps</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+{% include "navbar.html" %}
+<div class="page-bg bg-steps">
+<div class="card">
+    <h2>Daily Steps</h2>
+
+    <form method="post">
+        <input name="steps" placeholder="Steps walked today" required>
+        <button>Calculate</button>
+    </form>
+</div>
+</div>
+{% include "footer.html" %}
+</body>
+</html>

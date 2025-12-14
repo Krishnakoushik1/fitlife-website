@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Results</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+{% include "navbar.html" %}
+<div class="page-bg bg-results">
+
+<div class="card">
+    <h2>Fitness Summary</h2>
+
+    <p><b>Steps:</b> {{ r.steps }}</p>
+    <p><b>Calories Burned:</b> {{ r.calories }}</p>
+    <p><b>Weight Lost:</b> {{ r.weight_lost }} kg</p>
+
+    <h3>{{ r.badge }}</h3>
+
+    <a class="btn" href="/steps">Track Again</a>
+</div>
+</div>
+{% include "footer.html" %}
+</body>
+</html>

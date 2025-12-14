@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Quotes</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+{% include "navbar.html" %}
+
+<div class="page-bg bg-quotes">
+    <div class="card">
+        <h2>Motivational Quote</h2>
+        <p style="font-size: 18px; font-weight: 500;">
+            “{{ quote }}”
+        </p>
+
+        <a class="btn" href="/quotes">New Quote</a>
+    </div>
+</div>
+
+{% include "footer.html" %}
+
+</body>
+</html>

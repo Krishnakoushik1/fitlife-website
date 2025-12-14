@@ -1,0 +1,272 @@
+/* ================= GLOBAL ================= */
+
+* {
+    box-sizing: border-box;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    background: linear-gradient(120deg, #43cea2, #185a9d);
+}
+
+/* ================= CENTERED PAGES (LOGIN / REGISTER) ================= */
+
+.center-page {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+/* ================= CARD ================= */
+
+.card {
+    background: #ffffff;
+    width: 360px;
+    padding: 30px;
+    border-radius: 14px;
+    box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+    text-align: center;
+    margin: 100px auto 40px auto; /* space for navbar */
+}
+
+h2 {
+    margin-bottom: 15px;
+    color: #185a9d;
+}
+
+p {
+    color: #555;
+}
+
+/* ================= FORMS ================= */
+
+input {
+    width: 100%;
+    padding: 12px;
+    margin: 8px 0;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+}
+
+button, .btn {
+    width: 100%;
+    padding: 12px;
+    background: #185a9d;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 15px;
+    cursor: pointer;
+    margin-top: 10px;
+    text-decoration: none;
+    display: inline-block;
+}
+
+button:hover, .btn:hover {
+    background: #0f3c68;
+}
+
+.link {
+    margin-top: 12px;
+    display: block;
+    color: #185a9d;
+    text-decoration: none;
+    font-size: 14px;
+}
+
+ul {
+    text-align: left;
+    padding-left: 20px;
+}
+
+/* ================= NAVBAR ================= */
+
+.main-navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 60px;
+    background-color: #185a9d;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 30px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+}
+
+.nav-logo {
+    color: white;
+    font-size: 22px;
+    font-weight: bold;
+    letter-spacing: 1px;
+}
+
+.nav-menu {
+    display: flex;
+    gap: 20px;
+}
+
+.nav-link {
+    color: white;
+    text-decoration: none;
+    font-size: 15px;
+    font-weight: 500;
+}
+
+.nav-link:hover {
+    text-decoration: underline;
+}
+
+/* Logout button */
+.logout-link {
+    color: #ffdcdc;
+    font-weight: bold;
+}
+
+.logout-link:hover {
+    color: #ffb3b3;
+}
+
+/* ================= RESPONSIVE ================= */
+
+@media (max-width: 500px) {
+    .card {
+        width: 90%;
+    }
+
+    .nav-menu {
+        gap: 12px;
+    }
+
+    .nav-link {
+        font-size: 14px;
+    }
+}
+
+
+
+
+/* ================= FITLIFE LOGO BOX ================= */
+
+.logo-box {
+    background: white;
+    color: #185a9d;
+    padding: 8px 18px;
+    border-radius: 8px;
+    font-size: 18px;
+    font-weight: bold;
+    text-decoration: none;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    transition: all 0.2s ease-in-out;
+}
+
+.logo-box:hover {
+    background: #f0f7ff;
+    transform: translateY(-1px);
+}
+
+
+
+
+
+
+
+/* ================= FOOTER ================= */
+/* ================= FOOTER ================= */
+
+.main-footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background-color: #021f67;   /* darker for contrast */
+    color: #ffffff;
+    text-align: center;
+    padding: 12px 0;
+    font-size: 14px;
+    z-index: 999;
+}
+
+.main-footer p {
+    margin: 0;
+    color:#ffffff;
+}
+
+.main-footer a {
+    color: #ffdcdc;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.main-footer a:hover {
+    text-decoration: underline;
+}
+
+/* Prevent footer overlap */
+body {
+    padding-bottom: 70px;
+}
+
+/*=================images change css===================== */
+
+/* ================= PAGE BACKGROUND SYSTEM ================= */
+
+.page-bg {
+    min-height: 100vh;
+    padding-top: 90px;   /* navbar space */
+    padding-bottom: 90px; /* footer space */
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    position: relative;
+}
+
+/* Dark overlay for readability */
+.page-bg::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.35);
+    z-index: 0;
+}
+
+/* Keep card above overlay */
+.page-bg .card {
+    position: relative;
+    z-index: 1;
+}
+
+/* ===== Individual backgrounds ===== */
+
+.bg-profile {
+    background-image: url("/static/images/bg1.png");
+}
+
+.bg-quotes {
+    background-image: url("/static/images/bg2.png");
+}
+
+.bg-steps {
+    background-image: url("/static/images/bg3.png");
+}
+
+.bg-diet {
+    background-image: url("/static/images/bg4.png");
+}
+
+.bg-reminder {
+    background-image: url("/static/images/bg5.png");
+}
+.bg-results {
+    background-image: url("/static/images/bg6.png");
+}
+

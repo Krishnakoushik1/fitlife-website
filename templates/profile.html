@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Profile</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+{% include "navbar.html" %}
+<div class="page-bg bg-profile">
+<div class="card">
+    <h2>Your Profile</h2>
+
+    <form method="post">
+        <input name="height" placeholder="Height (cm)" required>
+        <input name="weight" placeholder="Weight (kg)" required>
+        <input name="age" placeholder="Age" required>
+        <button>Continue</button>
+    </form>
+</div>
+</div>
+{% include "footer.html" %}
+
+</body>
+</html>

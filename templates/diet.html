@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Diet Plan</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+{% include "navbar.html" %}
+<div class="page-bg bg-diet"></div>
+<div class="card">
+    <h2>Your Diet Plan</h2>
+    <p>{{ plan }}</p>
+
+    <ul>
+        <li>Drink 3L water daily</li>
+        <li>Eat fruits & vegetables</li>
+        <li>Include protein</li>
+        <li>Avoid junk food</li>
+    </ul>
+
+    <a class="btn" href="/result">View Results</a>
+</div>
+</div>
+{% include "footer.html" %}
+</body>
+</html>
