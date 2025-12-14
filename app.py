@@ -82,12 +82,16 @@ def register():
             )
             db.commit()
 
-            # Auto-login after register
+            # ✅ THIS IS THE KEY LINE
             session["user_id"] = cur.lastrowid
+
             return redirect("/profile")
 
         except sqlite3.IntegrityError:
-            return "Username already exists"
+            return render_template(
+                "register.html",
+                error="Username already exists. Try logging in."
+            )
         finally:
             db.close()
 
