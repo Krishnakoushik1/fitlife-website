@@ -1,7 +1,9 @@
 from flask import Flask, render_template, request, redirect, session
 import sqlite3
 import random
+import os
 
+# ---------------- APP SETUP ----------------
 app = Flask(__name__)
 app.secret_key = "fitness_secret_key"
 
@@ -11,17 +13,20 @@ app.config.update(
     SESSION_COOKIE_SECURE=True
 )
 
-# ---------------- DATABASE ----------------
+# ---------------- DATABASE (FIXED PATH) ----------------
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DB_PATH = os.path.join(BASE_DIR, "fitness.db")
+
 def get_db():
     conn = sqlite3.connect(
-        "fitness.db",
+        DB_PATH,
         timeout=10,
         check_same_thread=False
     )
     conn.execute("PRAGMA journal_mode=WAL;")
     return conn
 
-
+# ---------------- INIT DATABASE ----------------
 def init_db():
     db = get_db()
     try:
@@ -46,7 +51,6 @@ def init_db():
         db.commit()
     finally:
         db.close()
-
 
 init_db()
 
@@ -82,9 +86,7 @@ def register():
             )
             db.commit()
 
-            # ✅ THIS IS THE KEY LINE
             session["user_id"] = cur.lastrowid
-
             return redirect("/profile")
 
         except sqlite3.IntegrityError:
