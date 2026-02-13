@@ -1,68 +1,60 @@
 from flask import Flask, render_template, request, redirect, session, url_for
-import sqlite3
-import random
+from flask_sqlalchemy import SQLAlchemy
 import os
+import random
 
 app = Flask(__name__)
 app.secret_key = "fitness_secret_key"
 
-# ---------------- ENVIRONMENT DETECTION ----------------
-# If running on Render/Production, PORT variable exists
-IS_PRODUCTION = os.environ.get("PORT") is not None
+# ---------------- DATABASE CONFIG ----------------
 
-app.config.update(
-    SESSION_COOKIE_SAMESITE="Lax",
-    SESSION_COOKIE_SECURE=IS_PRODUCTION  # True only in production (HTTPS)
-)
+DATABASE_URL = os.environ.get("postgresql://postgres_koushik_user:EbxNI3v6HXaLyDuW2Rc7otyoyTvAV45U@dpg-d67n8ip4tr6s739g5s00-a.singapore-postgres.render.com/postgres_koushik")
 
-# ---------------- DATABASE ----------------
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DB_PATH = os.path.join(BASE_DIR, "fitness.db")
+if DATABASE_URL:
+    # Render PostgreSQL
+    app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URL
+    app.config["SESSION_COOKIE_SECURE"] = True
+else:
+    # Local SQLite
+    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///fitness.db"
+    app.config["SESSION_COOKIE_SECURE"] = False
 
-def get_db():
-    conn = sqlite3.connect(DB_PATH)
-    conn.row_factory = sqlite3.Row
-    return conn
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
-# ---------------- INIT DATABASE ----------------
-def init_db():
-    db = get_db()
-    db.execute("""
-        CREATE TABLE IF NOT EXISTS users (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            username TEXT UNIQUE,
-            password TEXT,
-            height REAL,
-            weight REAL,
-            age INTEGER
-        )
-    """)
-    db.execute("""
-        CREATE TABLE IF NOT EXISTS reminders (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            user_id INTEGER,
-            message TEXT,
-            time TEXT
-        )
-    """)
-    db.commit()
-    db.close()
+db = SQLAlchemy(app)
 
-init_db()
+# ---------------- MODELS ----------------
+
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(100), unique=True)
+    password = db.Column(db.String(100))
+    height = db.Column(db.Float)
+    weight = db.Column(db.Float)
+    age = db.Column(db.Integer)
+
+class Reminder(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer)
+    message = db.Column(db.String(200))
+    time = db.Column(db.String(50))
+
+# Create tables
+with app.app_context():
+    db.create_all()
 
 # ---------------- LOGIN ----------------
+
 @app.route("/", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
-        db = get_db()
-        user = db.execute(
-            "SELECT * FROM users WHERE username=? AND password=?",
-            (request.form["username"], request.form["password"])
-        ).fetchone()
-        db.close()
+        user = User.query.filter_by(
+            username=request.form["username"],
+            password=request.form["password"]
+        ).first()
 
         if user:
-            session["user_id"] = user["id"]
+            session["user_id"] = user.id
             return redirect(url_for("profile"))
         else:
             return render_template("login.html", error="Invalid credentials")
@@ -70,51 +62,46 @@ def login():
     return render_template("login.html")
 
 # ---------------- REGISTER ----------------
+
 @app.route("/register", methods=["GET", "POST"])
 def register():
     if request.method == "POST":
-        db = get_db()
-        try:
-            cur = db.execute(
-                "INSERT INTO users (username, password) VALUES (?, ?)",
-                (request.form["username"], request.form["password"])
-            )
-            db.commit()
-
-            session["user_id"] = cur.lastrowid
-            db.close()
-            return redirect(url_for("profile"))
-
-        except sqlite3.IntegrityError:
-            db.close()
+        if User.query.filter_by(username=request.form["username"]).first():
             return render_template("register.html", error="Username already exists")
+
+        new_user = User(
+            username=request.form["username"],
+            password=request.form["password"]
+        )
+
+        db.session.add(new_user)
+        db.session.commit()
+
+        session["user_id"] = new_user.id
+        return redirect(url_for("profile"))
 
     return render_template("register.html")
 
 # ---------------- PROFILE ----------------
+
 @app.route("/profile", methods=["GET", "POST"])
 def profile():
     if "user_id" not in session:
         return redirect(url_for("login"))
 
+    user = User.query.get(session["user_id"])
+
     if request.method == "POST":
-        db = get_db()
-        db.execute(
-            "UPDATE users SET height=?, weight=?, age=? WHERE id=?",
-            (
-                request.form["height"],
-                request.form["weight"],
-                request.form["age"],
-                session["user_id"]
-            )
-        )
-        db.commit()
-        db.close()
+        user.height = request.form["height"]
+        user.weight = request.form["weight"]
+        user.age = request.form["age"]
+        db.session.commit()
         return redirect(url_for("steps"))
 
     return render_template("profile.html")
 
 # ---------------- STEPS ----------------
+
 @app.route("/steps", methods=["GET", "POST"])
 def steps():
     if "user_id" not in session:
@@ -143,6 +130,7 @@ def steps():
     return render_template("steps.html")
 
 # ---------------- DIET ----------------
+
 @app.route("/diet")
 def diet():
     if "result" not in session:
@@ -154,58 +142,43 @@ def diet():
     return render_template("diet.html", plan=plan)
 
 # ---------------- RESULT ----------------
+
 @app.route("/result")
 def result():
     if "result" not in session:
         return redirect(url_for("steps"))
+
     return render_template("result.html", r=session["result"])
 
-# ---------------- QUOTES ----------------
-@app.route("/quotes")
-def quotes():
-    if "user_id" not in session:
-        return redirect(url_for("login"))
-
-    quotes_list = [
-        "Small steps every day lead to big results. 💪",
-        "Consistency beats motivation.",
-        "Push yourself because no one else will.",
-        "Success starts with discipline.",
-        "Every step forward counts."
-    ]
-
-    return render_template("quotes.html", quote=random.choice(quotes_list))
-
 # ---------------- REMINDER ----------------
+
 @app.route("/reminder", methods=["GET", "POST"])
 def reminder():
     if "user_id" not in session:
         return redirect(url_for("login"))
 
-    db = get_db()
-
     if request.method == "POST":
-        db.execute(
-            "INSERT INTO reminders (user_id, message, time) VALUES (?, ?, ?)",
-            (session["user_id"], request.form["message"], request.form["time"])
+        new_reminder = Reminder(
+            user_id=session["user_id"],
+            message=request.form["message"],
+            time=request.form["time"]
         )
-        db.commit()
+        db.session.add(new_reminder)
+        db.session.commit()
 
-    reminders = db.execute(
-        "SELECT message, time FROM reminders WHERE user_id=?",
-        (session["user_id"],)
-    ).fetchall()
+    reminders = Reminder.query.filter_by(user_id=session["user_id"]).all()
 
-    db.close()
     return render_template("reminder.html", reminders=reminders)
 
 # ---------------- LOGOUT ----------------
+
 @app.route("/logout")
 def logout():
     session.clear()
     return redirect(url_for("login"))
 
 # ---------------- RUN ----------------
+
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port, debug=not IS_PRODUCTION)
+    app.run(host="0.0.0.0", port=port, debug=not DATABASE_URL)
